@@ -13,20 +13,36 @@ variables:
     -e "^KUBE_INGRESS_BASE_DOMAIN" \
     -e "^KUBE_NAMESPACE" \
     -e "^PRODUCTION" \
+    -e "^KOSKO_" \
     -e "^RANCHER_PROJECT_ID" | sort
 
 .base_deploy_kosko_stage:
   stage: Deploy
   image: registry.gitlab.factory.social.gouv.fr/socialgouv/docker/kosko:2.9.0
   dependencies: []
-  cache:
-    key:
-      files:
-        - ${K8S_FOLDER}/yarn.lock
-      prefix: ${CI_JOB_NAME}
-    paths:
-      - ${CI_PROJECT_DIR}/.cache
-      - ${K8S_FOLDER}/node_modules
+  cache: {}
+  # cache:
+  #   key:
+  #     files:
+  #       # - ${K8S_FOLDER}/yarn.lock
+  #       - ${CI_PROJECT_DIR}/package.json
+  #     prefix: ${CI_JOB_NAME}
+  #   paths:
+  #     - ${CI_PROJECT_DIR}/.cache
+  #     # - ${K8S_FOLDER}/node_modules
+  before_script:
+    - |
+      if [[ -d "${CI_PROJECT_DIR}/.socialgouv" ]]; then
+        echo ".socialgouv folder has been found."
+        apk add git
+        rm -rf ${K8S_FOLDER}
+        npx degit github:gary-van-woerkens/k8s/.k8s#main ${K8S_FOLDER}
+        if [[ -d "${CI_PROJECT_DIR}/.socialgouv/environments"]]; then
+          cp -r ${CI_PROJECT_DIR}/.socialgouv/environments/* ${K8S_FOLDER}/environments/
+        fi
+        echo "K8S_FOLDER folder content:"
+        ls -lah ${K8S_FOLDER}
+      fi
   script:
     - *print_env
     #
@@ -56,6 +72,7 @@ variables:
       else
         kubectl apply -f ${CI_PROJECT_DIR}/manifest.yaml
       fi
+    - rm -rf ${K8S_FOLDER}
     - |
       echo ""
       echo ""
