@@ -31,6 +31,7 @@ variables:
   #     - ${CI_PROJECT_DIR}/.cache
   #     # - ${K8S_FOLDER}/node_modules
   before_script:
+    - *print_env
     - |
       if [[ -d "${CI_PROJECT_DIR}/.socialgouv" ]]; then
         echo ".socialgouv folder has been found."
@@ -44,8 +45,6 @@ variables:
         ls -lah ${K8S_FOLDER}
       fi
   script:
-    - *print_env
-    #
     - yarn config set cache-folder ${CI_PROJECT_DIR}/.cache/yarn
     - cd ${K8S_FOLDER}
     - yarn --production --frozen-lockfile --prefer-offline --link-duplicates
