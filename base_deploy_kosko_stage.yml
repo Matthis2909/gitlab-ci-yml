@@ -41,8 +41,9 @@ variables:
         apk add git
         rm -rf ${K8S_FOLDER}
         npx degit github:gary-van-woerkens/k8s/.k8s#main ${K8S_FOLDER}
-        if [[ -d "${CI_PROJECT_DIR}/.socialgouv/environments"]]; then
+        if [[ -d "${CI_PROJECT_DIR}/.socialgouv/environments" ]]; then
           echo "debug 4"
+          cp -r ${CI_PROJECT_DIR}/.socialgouv/environments/* ${K8S_FOLDER}/environments/
         fi
         echo "K8S_FOLDER folder content:"
         ls -lah ${K8S_FOLDER}
